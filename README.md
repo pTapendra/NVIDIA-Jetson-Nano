@@ -76,7 +76,6 @@ The project includes various neural network models:
 - ResNet18
 - MobileNetV2
 - ShuffleNet
-- Regression models for continuous steering angle prediction
 
 #### Real-time Control Logic
 
