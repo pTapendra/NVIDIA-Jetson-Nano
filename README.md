@@ -3,11 +3,13 @@
 ![jetbot](https://github.com/user-attachments/assets/81ceaedf-59ff-4aa7-a4b9-ea1faf85d98d)
 
 ## Introduction
+
 This project demonstrates how to implement autonomous path following on a JetBot. By training various models on path images, the JetBot can learn to navigate itself along the path using real-time camera input.
 
 ## Methodology
 
 ### Data Collection
+
 The project uses a dataset of images collected from the JetBot's camera while navigating. Each image is labeled with (x, y) coordinates representing the target direction. The dataset is organized in a way that filenames contain the steering information (extracted using the `get_x` and `get_y` functions).
 
 Two methods for data collection are available:
@@ -21,6 +23,7 @@ Using (x, y) coordinates provides a continuous representation of the steering di
 Storing coordinates in filenames simplifies data loading and labeling.
 
 ### Dataset Preparation
+
 The dataset is loaded using a custom `XYDataset` class that inherits from PyTorch's Dataset. Data augmentation is applied, including:
 
 - Random horizontal flips (optional) - It increases data variability, especially useful if the path is symmetrical.
@@ -34,20 +37,22 @@ The dataset is split into training (90%) and testing (10%) sets. As a separate t
 
 Multiple models were evaluated for the path following task:
 
--   **ResNet18**: Trained for 70 epochs - Considered this as a baseline model, as presented in the original notebook examples. ResNet18 provides a good balance between representational capacity and computational cost. We wanted to assess its performance as a starting point.
+- **ResNet18**: Trained for 70 epochs - Considered this as a baseline model, as presented in the original notebook examples. ResNet18 provides a good balance between representational capacity and computational cost. We wanted to assess its performance as a starting point.
 
--   **MobileNetV2**: Trained for 13 epochs - We used this model to explore a more efficient architecture. MobileNetV2 is designed for mobile devices and is known for its low computational footprint, which is crucial for real-time performance on the Jetson Nano. We aimed to see if we could maintain acceptable accuracy while significantly improving speed.
+- **MobileNetV2**: Trained for 13 epochs - We used this model to explore a more efficient architecture. MobileNetV2 is designed for mobile devices and is known for its low computational footprint, which is crucial for real-time performance on the Jetson Nano. We aimed to see if we could maintain acceptable accuracy while significantly improving speed.
 
--   **ShuffleNet**: Trained for 18 epochs - We also wanted to test lightweight models, specifically ShuffleNetV2, to push the limits of efficiency. ShuffleNetV2 is another architecture optimized for mobile devices, utilizing channel shuffling to reduce computation. Our goal was to determine the minimum model size that still allowed for effective path following.
+- **ShuffleNet**: Trained for 18 epochs - We also wanted to test lightweight models, specifically ShuffleNetV2, to push the limits of efficiency. ShuffleNetV2 is another architecture optimized for mobile devices, utilizing channel shuffling to reduce computation. Our goal was to determine the minimum model size that still allowed for effective path following.
 
 The epochs were determined empirically, by monitoring the validation loss during training, to prevent overfitting. We stopped training when the validation loss started to plateau or increase, indicating that the model was beginning to memorize the training data rather than generalize to new data.
 
 Training details:
+
 - Loss function: Mean Squared Error (MSE) - An appropriate function for regression tasks, measuring the difference between predicted and actual (x, y) coordinates.
 - Optimizer: Adam
 - Batch size: 8
 
 ### Model Optimization
+
 For real-time performance, the trained PyTorch models were optimized using TensorRT:
 
 ```python
@@ -58,6 +63,7 @@ model_trt = torch2trt(model, [dummy_input], fp16_mode=True) # From live_demo_bui
 ```
 
 ## Implementation
+
 The live demonstration uses:
 
 - Camera input preprocessing with normalization
@@ -72,7 +78,9 @@ The live demonstration uses:
 ### Key Components
 
 #### Custom Models
+
 The project includes various neural network models:
+
 - ResNet18
 - MobileNetV2
 - ShuffleNet
@@ -94,6 +102,7 @@ def execute(change):
 ```
 
 ## Results
+
 The system successfully enables the JetBot to follow paths smoothly using deep learning and computer vision. The TensorRT optimization allows real-time inference even on the resource-constrained Jetson Nano hardware.
 
 ## Performance:
@@ -108,12 +117,15 @@ Balancing model complexity and inference speed was important for real-time opera
 Tuning the control parameters required careful experimentation.
 
 ## Future Improvements
+
 - Collect more diverse training data for better generalization
 - Add collision avoidance capabilities
 - Implement adaptive speed control based on path complexity
 
 ---
+
 ## Instructions to run project
+
 To get started with this project, follow these steps:
 
 - Set up your JetBot:
@@ -142,4 +154,8 @@ Execute the live_demo_trt.ipynb notebook to see the JetBot autonomously follow t
 Use the provided sliders to fine-tune the JetBot's behavior.
 Troubleshooting:
 
-* If the JetBot is not performing as expected, consider collecting more data, adjusting training parameters, or fine-tuning the control parameters in the live demo.
+- If the JetBot is not performing as expected, consider collecting more data, adjusting training parameters, or fine-tuning the control parameters in the live demo.
+
+## Link to our presentation
+
+[View the presentation](https://docs.google.com/presentation/d/1Gt_xdkhI_dyj6QaeRqWeCma-2F-Kaza1mNiNhUEfANU/edit?usp=sharing)
